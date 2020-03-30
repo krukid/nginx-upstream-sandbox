@@ -1,0 +1,32 @@
+version: "3"
+services:
+  nginx:
+    image: "nginx:latest"
+    volumes:
+      - "./public:/public:ro"
+      - "./nginx:/etc/nginx/conf.d:ro"
+    ports:
+      - "3000:3000"
+    networks:
+      - shared
+    depends_on:
+      - app
+
+  app:
+    image: "ruby:latest"
+    command: >
+      bash -c '\
+        ruby /server/start.rb 3001 2 & \
+        ruby /server/start.rb 3002 1 & \
+        wait \
+      '
+    volumes:
+      - "./server:/server:ro"
+    ports:
+      - "3001:3001"
+      - "3002:3002"
+    networks:
+      - shared
+
+networks:
+  shared:
